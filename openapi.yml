@@ -1,0 +1,36 @@
+openapi: 3.0.3
+info:
+  title: Images Handler API
+  description: Simple API for uploading images
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:9292
+
+paths:
+  /upload/image:
+    post:
+      summary: Upload an image
+      description: Uploads an image file and stores it using the configured storage.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - image
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '204':
+          description: Image uploaded successfully (No Content)
+        '400':
+          description: Invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: invalid type

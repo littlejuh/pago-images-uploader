@@ -1,0 +1,11 @@
+
+services:
+  app:
+    build: .
+    ports:
+      - "9292:9292"
+    volumes:
+      - .:/app
+      - ./tmp/uploads:/app/tmp/uploads
+    environment:
+      RACK_ENV: development
