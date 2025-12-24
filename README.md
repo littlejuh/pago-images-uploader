@@ -2,9 +2,6 @@
 
 
 ## Setup
-- In your fav console, goes to the api folder following these next steps:
-  - `cd pago-uploads`
-
 ### 🚀 Run the Project
 The project provides a `Makefile` to simplify common tasks.
 
