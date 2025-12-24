@@ -1,26 +1,30 @@
 # frozen_string_literal: true
 
-ENV['RACK_ENV'] = 'test'
-ENV['SINATRA_ENV'] = 'test'
-
-require 'rack/test'
 require 'rspec'
-require 'fileutils'
+require 'rack/test'
 
-require File.expand_path('../config/environment', __dir__)
+# Define ambiente de teste
+ENV['SINATRA_ENV'] ||= 'test'
 
+# Carrega todas as dependências do app
+require_relative '../config/environment'
+
+# Configurações globais do RSpec
 RSpec.configure do |config|
-  config.include Rack::Test::Methods
+  # Permite usar let/subject/etc sem warnings
+  config.expose_dsl_globally = true
 
-  config.after(:each) do
-    FileUtils.rm_rf(Dir['tmp/uploads/*'])
+  # Syntax moderna
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
   end
-end
 
-def app
-  ImagesHandler::HandlerController
-end
+  # Ordem aleatória
+  config.order = :random
 
-def fixture_path(filename)
-  File.expand_path("fixtures/#{filename}", __dir__)
+  # Limpeza antes de cada teste (caso queira resetar caches ou storage)
+  config.before(:each) do
+    # Exemplo: limpar uploads temporários
+    FileUtils.rm_rf(ImagesHandler::LocalStorage::UPLOAD_DIR) if defined?(ImagesHandler::LocalStorage)
+  end
 end

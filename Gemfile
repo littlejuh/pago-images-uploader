@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 
 gem 'require_all'
 gem 'sinatra'
-gem 'sinatra-cross_origin'
 gem 'thin'
 
 group :test do

@@ -12,19 +12,21 @@ RSpec.describe ImagesHandler::HandlerController do
   let(:image_service) { instance_double(ImagesHandler::ImageService) }
 
   before do
+    # Mocka o image_service para todos os testes
     allow_any_instance_of(described_class)
       .to receive(:image_service)
       .and_return(image_service)
   end
 
+  # Helper para criar UploadedFile em memória
+  def uploaded_file(content:, filename:, type:)
+    tempfile = StringIO.new(content)
+    Rack::Test::UploadedFile.new(tempfile, type, original_filename: filename)
+  end
+
   describe 'POST /upload/image' do
     context 'when upload is successful' do
-      let(:file) do
-        Rack::Test::UploadedFile.new(
-          fixture_path('test.png'),
-          'image/png'
-        )
-      end
+      let(:file) { uploaded_file(content: 'fake image content', filename: 'test.png', type: 'image/png') }
 
       before do
         allow(ImagesHandler::Image)
@@ -53,12 +55,7 @@ RSpec.describe ImagesHandler::HandlerController do
     end
 
     context 'when mime type is invalid' do
-      let(:file) do
-        Rack::Test::UploadedFile.new(
-          fixture_path('test.txt'),
-          'text/plain'
-        )
-      end
+      let(:file) { uploaded_file(content: 'fake text content', filename: 'test.txt', type: 'text/plain') }
 
       before do
         allow(ImagesHandler::Image)
@@ -72,6 +69,16 @@ RSpec.describe ImagesHandler::HandlerController do
 
         expect(last_response.status).to eq(400)
         expect(last_response.body).to include('invalid type')
+      end
+    end
+
+    context 'when image param is malformed' do
+      let(:file) { {} }
+
+      it 'returns 400' do
+        post '/upload/image', image: file
+
+        expect(last_response.status).to eq(400)
       end
     end
   end

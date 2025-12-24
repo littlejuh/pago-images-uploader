@@ -3,17 +3,23 @@
 require 'spec_helper'
 
 RSpec.describe ImagesHandler::HandlerController do
+  include Rack::Test::Methods
+
+  def app
+    ImagesHandler::HandlerController.new
+  end
+
+  def uploaded_file(content:, filename:, type:)
+    tempfile = StringIO.new(content)
+    Rack::Test::UploadedFile.new(tempfile, type, original_filename: filename)
+  end
+
   subject(:request) { post '/upload/image', params }
 
   context 'POST /upload/image' do
     context 'when upload is successful' do
       let(:params) do
-        {
-          image: Rack::Test::UploadedFile.new(
-            fixture_path('test.png'),
-            'image/png'
-          )
-        }
+        { image: uploaded_file(content: 'fake image content', filename: 'test.png', type: 'image/png') }
       end
 
       it 'returns 204' do
@@ -33,12 +39,7 @@ RSpec.describe ImagesHandler::HandlerController do
 
     context 'when mime type is invalid' do
       let(:params) do
-        {
-          image: Rack::Test::UploadedFile.new(
-            fixture_path('test.txt'),
-            'text/plain'
-          )
-        }
+        { image: uploaded_file(content: 'fake text content', filename: 'test.txt', type: 'application/octet-stream') }
       end
 
       it 'returns 400' do
